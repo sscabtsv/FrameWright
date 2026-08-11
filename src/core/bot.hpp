@@ -67,6 +67,8 @@ class Bot {
 
     static void togglePlaying();
 
+    static void seekMacroToCurrentFrame();
+
     static void resetState(bool cp = false);
 
     static bool shouldStep();

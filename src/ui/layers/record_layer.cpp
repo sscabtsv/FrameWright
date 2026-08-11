@@ -292,8 +292,6 @@ void RecordLayer::togglePlaying(CCObject *) {
     bot.state = bot.state == state::playing ? state::none : state::playing;
 
     if (bot.state == state::playing) {
-        bot.currentAction = 0;
-        bot.currentFrameFix = 0;
         bot_incompat::autoDisableBotSettings();
 
         bot.replay.xdBotMacro = bot.replay.botInfo.name == "xdBot";
@@ -302,11 +300,16 @@ void RecordLayer::togglePlaying(CCObject *) {
         PlayLayer *plScene = CCScene::get()->getChildByType<PlayLayer>(0);
 
         if (pl && plScene) {
-            if (!pl->m_isPaused && !pl->m_levelEndAnimationStarted)
-                pl->m_isPlatformer ? pl->resetLevelFromStart()
-                                   : pl->resetLevel();
-            else
+            if (!pl->m_isPaused && !pl->m_levelEndAnimationStarted) {
+                Bot::seekMacroToCurrentFrame();
+            } else {
+                bot.currentAction = 0;
+                bot.currentFrameFix = 0;
                 bot.restart = true;
+            }
+        } else {
+            bot.currentAction = 0;
+            bot.currentFrameFix = 0;
         }
     }
 

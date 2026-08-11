@@ -5,6 +5,7 @@
 #include "../ui/game/game_ui.hpp"
 #include "../ui/layers/record_layer.hpp"
 
+#include <algorithm>
 #include <random>
 
 namespace {
@@ -305,6 +306,31 @@ void Bot::togglePlaying() {
     auto* layer = RecordLayer::create();
     layer->togglePlaying(nullptr);
     layer->onClose(nullptr);
+}
+
+void Bot::seekMacroToCurrentFrame() {
+    auto& bot = Bot::get();
+    int frame = Bot::getCurrentFrame();
+
+    bot.currentAction = static_cast<size_t>(std::distance(
+        bot.replay.inputs.begin(),
+        std::lower_bound(
+            bot.replay.inputs.begin(), bot.replay.inputs.end(), frame,
+            [](const ReplayInput& input, int f) { return input.frame < f; })));
+
+    bot.currentFrameFix = static_cast<size_t>(std::distance(
+        bot.replay.frameFixes.begin(),
+        std::lower_bound(
+            bot.replay.frameFixes.begin(), bot.replay.frameFixes.end(), frame,
+            [](const gdr_legacy::FrameFix& fix, int f) { return fix.frame < f; })));
+
+    bot.currentTpsChange = static_cast<size_t>(std::distance(
+        bot.replay.tpsChanges.begin(),
+        std::lower_bound(
+            bot.replay.tpsChanges.begin(), bot.replay.tpsChanges.end(), frame,
+            [](const gdr_legacy::TpsChange& change, int f) { return change.frame < f; })));
+
+    bot.respawnFrame = frame;
 }
 
 void Bot::resetState(bool cp) {

@@ -103,7 +103,8 @@ const std::vector<std::vector<RecordSetting>> settings{
      {"No Mirror Portal:", "no_mirror_portal", InputType::None},
      {"Enable Auto Saving:", "macro_auto_save", InputType::Autosave}},
     {{"Attempts Showcase:", "macro_attempts_showcase", InputType::Settings, 0.325f,
-      openAttemptsShowcaseSettings}}};
+      openAttemptsShowcaseSettings},
+     {"Play From Current Frame:", "macro_play_from_current_frame", InputType::None}}};
 
 $execute {
     auto* mod = Mod::get();
@@ -292,8 +293,6 @@ void RecordLayer::togglePlaying(CCObject *) {
     bot.state = bot.state == state::playing ? state::none : state::playing;
 
     if (bot.state == state::playing) {
-        bot.currentAction = 0;
-        bot.currentFrameFix = 0;
         bot_incompat::autoDisableBotSettings();
 
         bot.replay.xdBotMacro = bot.replay.botInfo.name == "xdBot";
@@ -301,12 +300,42 @@ void RecordLayer::togglePlaying(CCObject *) {
         PlayLayer *pl = PlayLayer::get();
         PlayLayer *plScene = CCScene::get()->getChildByType<PlayLayer>(0);
 
-        if (pl && plScene) {
-            if (!pl->m_isPaused && !pl->m_levelEndAnimationStarted)
-                pl->m_isPlatformer ? pl->resetLevelFromStart()
-                                   : pl->resetLevel();
-            else
-                bot.restart = true;
+        bool playFromCurrentFrame = bot.mod->getSavedValue<bool>("macro_play_from_current_frame");
+
+        if (playFromCurrentFrame && pl && plScene && !pl->m_isPaused &&
+            !pl->m_levelEndAnimationStarted && !pl->m_player1->m_isDead) {
+            bot.attemptStartFrame = 0;
+            bot.frameOffset = 0;
+
+            int currentFrame = static_cast<int>(pl->m_gameState.m_currentProgress / 2);
+
+            bot.currentAction = 0;
+            while (bot.currentAction < bot.replay.inputs.size() &&
+                   bot.replay.inputs[bot.currentAction].frame <
+                       static_cast<uint64_t>(currentFrame))
+                bot.currentAction++;
+
+            bot.currentFrameFix = 0;
+            while (bot.currentFrameFix < bot.replay.frameFixes.size() &&
+                   bot.replay.frameFixes[bot.currentFrameFix].frame < currentFrame)
+                bot.currentFrameFix++;
+
+            bot.currentTpsChange = 0;
+            while (bot.currentTpsChange < bot.replay.tpsChanges.size() &&
+                   bot.replay.tpsChanges[bot.currentTpsChange].frame < currentFrame)
+                bot.currentTpsChange++;
+        } else {
+            bot.currentAction = 0;
+            bot.currentFrameFix = 0;
+            bot.currentTpsChange = 0;
+
+            if (pl && plScene) {
+                if (!pl->m_isPaused && !pl->m_levelEndAnimationStarted)
+                    pl->m_isPlatformer ? pl->resetLevelFromStart()
+                                       : pl->resetLevel();
+                else
+                    bot.restart = true;
+            }
         }
     }
 

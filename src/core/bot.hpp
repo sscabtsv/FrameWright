@@ -13,7 +13,7 @@
 
 enum state { none, recording, playing };
 
-enum class SaveFormat { GDR2, GDR1, JSON };
+enum class SaveFormat { GDR2, GDR1, JSON, FW };
 
 struct CheckpointData {
     int frame;
@@ -66,8 +66,6 @@ class Bot {
     static void toggleRecording();
 
     static void togglePlaying();
-
-    static void seekMacroToCurrentFrame();
 
     static void resetState(bool cp = false);
 

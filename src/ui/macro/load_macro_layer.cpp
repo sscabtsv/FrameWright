@@ -125,7 +125,8 @@ void LoadMacroLayer::onImportMacro(CCObject*) {
     if (isPickingFile)
         return;
     file::FilePickOptions fileOptions;
-    fileOptions.filters.push_back({"Macro Files", {"*.gdr", "*.gdr2", "*.xd", "*.json", "*.tcm"}});
+    fileOptions.filters.push_back(
+        {"Macro Files", {"*.gdr", "*.gdr2", "*.xd", "*.json", "*.tcm", "*.fw"}});
     auto weakThis = geode::WeakRef(this);
     isPickingFile = true;
 
@@ -390,7 +391,7 @@ void LoadMacroLayer::addList(bool refresh, float prevScroll) {
 
         if (macros[i].extension() != ".gdr" && macros[i].extension() != ".gdr2" &&
             macros[i].extension() != ".xd" && macros[i].extension() != ".json" &&
-            macros[i].extension() != ".tcm")
+            macros[i].extension() != ".tcm" && macros[i].extension() != ".fw")
             continue;
 
         std::string name =

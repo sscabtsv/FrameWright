@@ -10,7 +10,7 @@
     "id": "zilko.xdbot",
     "name": "Framewright",
     "developer": "Cabinet",
-    "description": "Frame perfect macro.",
+    "description": "Frame accurate macro.",
     "dependencies": {
         "eclipse.eclipse-menu": {
             "version": ">=1.8.3",
@@ -40,7 +40,8 @@
             "one-of": [
                 "GDR2",
                 "GDR",
-                "JSON"
+                "JSON",
+                "FW"
             ]
         },
         "frame_offset": {
